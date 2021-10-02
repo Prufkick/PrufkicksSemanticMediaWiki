@@ -16,6 +16,7 @@ use SMW\PropertySpecificationLookup;
 use SMWDataValue as DataValue;
 use SMWNumberValue as NumberValue;
 use SMWTimeValue as TimeValue;
+use StubGlobalUser;
 
 /**
  * @private
@@ -184,9 +185,12 @@ class DataValueServiceFactory {
 
 		$propertyRestrictionExaminer = $this->containerBuilder->singleton( 'PropertyRestrictionExaminer' );
 
-		$propertyRestrictionExaminer->setUser(
-			$GLOBALS['wgUser']
-		);
+		if ( class_exists( '\StubGlobalUser' ) ) {
+			// MW >= 1.37
+			$propertyRestrictionExaminer->setUser( StubGlobalUser::getRealUser( $GLOBALS['wgUser'] ) );
+		} else {
+			$propertyRestrictionExaminer->setUser( $GLOBALS['wgUser'] );
+		}
 
 		return $propertyRestrictionExaminer;
 	}
